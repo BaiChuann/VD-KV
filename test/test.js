@@ -66,13 +66,13 @@ describe('Get value with latest timestamp', function() {
 			})
 			.end(() => {
 				sleep(1000).then(() => {
-					var timestamp = new Date().getTime() / 1000 | 0;
 					chai.request(app).post('/object')
 						.set('content-type', 'application/json')
 						.send({
 							'testKey': 'v2'
 						})
-						.end(() => {
+						.end((err, res) => {
+							var timestamp = new Date().getTime() / 1000;
 							chai.request(app).get(`/object/testKey?timestamp=${timestamp}`)
 								.end(function(err, res) {
 									res.status.should.equal(200);
