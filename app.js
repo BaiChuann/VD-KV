@@ -1,8 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const pgp = require('pg-promise')();
-const cn = 'postgres://postgres:@localhost:5432/vdkv'
-const db = pgp(cn)
+const db_url = process.env.NODE_ENV == 'test' ? process.env.TEST_DATABASE_URL : process.env.DATABASE_URL
+const db = pgp(db_url)
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
@@ -20,7 +21,7 @@ app.post('/object', jsonParser, function(req, res) {
         var response_obj = {
             key: key,
             value: value,
-            timestamp: result.date_part | 0
+            timestamp: result.date_part
         };
 
         res.send(response_obj);
@@ -35,7 +36,7 @@ app.get('/object/:key', function(req, res) {
     var timestamp = req.query.timestamp;
 	db.task(t => {
         if (timestamp) {
-            return t.oneOrNone('SELECT H.value FROM keys K INNER JOIN history_values H ON (K.id = H.key_id) WHERE key = $1 AND extract(epoch from timestamp) <= $2 ORDER BY timestamp DESC LIMIT 1', [key, timestamp])
+            return t.oneOrNone('SELECT H.value FROM keys K INNER JOIN history_values H ON (K.id = H.key_id) WHERE key = $1 AND extract(epoch from H.timestamp) <= $2 ORDER BY H.timestamp DESC LIMIT 1', [key, timestamp])
         } else {
             return t.oneOrNone('SELECT value FROM keys WHERE key = $1', key)
         }

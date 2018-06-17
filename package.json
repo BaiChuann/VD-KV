@@ -19,6 +19,7 @@
   "dependencies": {
     "chai": "^4.1.2",
     "chai-http": "^4.0.0",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "mocha": "^5.2.0",
     "pg-promise": "^8.4.4"
